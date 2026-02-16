@@ -78,6 +78,32 @@ default: return "Unknown";
 WebServer server(80);
 ```
 
+### ESP32 固件烧录
+
+**问题**: 只烧录 firmware.bin 导致 ESP32 一直重启
+
+**解决**: 必须烧录完整的三个文件
+
+```bash
+# 正确的烧录命令
+esptool --chip esp32c3 --port /dev/ttyACM0 --baud 460800 write_flash \
+  0x0 bootloader.bin \
+  0x8000 partitions.bin \
+  0x10000 firmware.bin
+```
+
+**GitHub Actions 上传配置**:
+```yaml
+- name: Upload firmware
+  uses: actions/upload-artifact@v4
+  with:
+    name: firmware
+    path: |
+      .pio/build/esp32-c3-devkitm-1/bootloader.bin
+      .pio/build/esp32-c3-devkitm-1/partitions.bin
+      .pio/build/esp32-c3-devkitm-1/firmware.bin
+```
+
 ---
 
 ## 部署
