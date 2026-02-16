@@ -98,7 +98,6 @@ String getEncryptionType(wifi_auth_mode_t encryption) {
     case WIFI_AUTH_WPA_WPA2_PSK: return "WPA/WPA2";
     case WIFI_AUTH_WPA2_ENTERPRISE: return "WPA2-Enterprise";
     case WIFI_AUTH_WPA3_PSK: return "WPA3";
-    case WIFI_AUTH_WPA3_WPA2_PSK: return "WPA3/WPA2";
     default: return "Unknown";
   }
 }
