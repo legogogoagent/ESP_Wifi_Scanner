@@ -88,9 +88,40 @@ ESP_Wifi_Scanner/
 ├── src/
 │   └── main.cpp            # Main application code
 ├── AGENTS.md               # This file - agent behavior rules
+├── TODO.md                 # Task planning and tracking
+├── CHANGELOG.md            # Change log (required when modifying TODO)
 ├── RELEASE.md              # Release process documentation
 └── platformio.ini          # PlatformIO configuration
 ```
+
+## TODO List Workflow
+
+### Before Any Change
+1. Review `TODO.md` for existing plan
+2. Evaluate proposed changes against TODO plan
+3. Check for conflicts or misalignment
+4. If changes affect TODO plan → document in `CHANGELOG.md`:
+   - Reason for change
+   - Impact assessment
+   - Solution/approach
+
+### CHANGELOG.md Required Fields (when modifying TODO)
+```markdown
+## [Date] - Change Description
+
+### Reason
+Why the TODO plan needs modification
+
+### Impact
+What this change affects
+
+### Solution
+How to implement the change
+```
+
+### Commit Pattern
+- Update TODO.md together with code changes
+- If TODO changed → commit message must reference CHANGELOG entry
 
 ## CI/CD Workflow
 
