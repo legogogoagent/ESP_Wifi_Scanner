@@ -39,5 +39,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: firmware
-          path: .pio/build/esp32-c3-devkitm-1/firmware.bin
+          path: |
+            .pio/build/esp32-c3-devkitm-1/bootloader.bin
+            .pio/build/esp32-c3-devkitm-1/partitions.bin
+            .pio/build/esp32-c3-devkitm-1/firmware.bin
           retention-days: 7
