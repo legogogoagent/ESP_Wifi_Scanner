@@ -157,29 +157,32 @@ void handleScan() {
 
 void setup() {
   Serial.begin(115200);
-  delay(1000);
+  delay(500);
+  Serial.println("Booting ESP32...");
   
-  Serial.println("Starting ESP32 WiFi Scanner...");
-  
-  // Initialize WiFi in AP mode
-  Serial.print("Setting AP (Access Point)…");
+  delay(500);
+  Serial.println("Setting WiFi mode...");
   WiFi.mode(WIFI_AP);
-  WiFi.softAP("ESP32-Scanner");
+  delay(500);
   
-  delay(1000); // Wait for AP to start
+  Serial.println("Starting AP...");
+  bool apResult = WiFi.softAP("ESP32-Scanner");
+  Serial.print("AP started: ");
+  Serial.println(apResult ? "OK" : "FAILED");
   
+  delay(1000);
   IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
+  Serial.print("AP IP: ");
   Serial.println(IP);
   
-  // Start web server
+  Serial.println("Starting web server...");
   server.on("/", handleRoot);
   server.on("/scan", handleScan);
   server.begin();
-  
-  Serial.println("Web server started!");
+  Serial.println("Web server ready!");
 }
 
 void loop() {
   server.handleClient();
+  delay(1);
 }
