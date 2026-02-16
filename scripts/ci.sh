@@ -112,6 +112,8 @@ if file_exists "platformio.ini"; then
   echo "[ci] detected: platformio project"
 
   if ! has_command pio; then
+    echo "[ci] installing platformio..."
+    run pip install --upgrade pip
     run pip install platformio
   fi
 
