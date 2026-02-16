@@ -119,6 +119,11 @@ What this change affects
 How to implement the change
 ```
 
+### After Task Completion
+- Mark completed tasks in TODO.md as `[x]`
+- Add new tasks if scope expanded
+- Update TODO.md in the same commit as code changes
+
 ### Commit Pattern
 - Update TODO.md together with code changes
 - If TODO changed → commit message must reference CHANGELOG entry
