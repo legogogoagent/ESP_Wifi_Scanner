@@ -54,6 +54,30 @@ lib_deps =
 const char index_html[] PROGMEM = R"rawliteral(... )rawliteral";
 ```
 
+### ESP32-C3 编译兼容性
+
+**问题**: 使用 espressif32@5.4.0 或更高版本时，`WIFI_AUTH_WPA3_WPA2_PSK` 未定义
+
+**解决**: 移除该枚举值，或使用条件编译
+
+```cpp
+// 移除不兼容的加密类型
+case WIFI_AUTH_WPA3_PSK: return "WPA3";
+// 删除: case WIFI_AUTH_WPA3_WPA2_PSK: return "WPA3/WPA2";
+default: return "Unknown";
+```
+
+### Web服务器库选择
+
+**问题**: ESPAsyncWebServer 在 ESP32-C3 上编译困难
+
+**解决**: 使用 Arduino 内置的 WebServer 库（同步但更稳定）
+
+```cpp
+#include <WebServer.h>
+WebServer server(80);
+```
+
 ---
 
 ## 部署
