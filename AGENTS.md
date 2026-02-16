@@ -90,9 +90,16 @@ ESP_Wifi_Scanner/
 ├── AGENTS.md               # This file - agent behavior rules
 ├── TODO.md                 # Task planning and tracking
 ├── CHANGELOG.md            # Change log (required when modifying TODO)
+├── KNOWLEDGE.md            # Project knowledge base (pitfalls & solutions)
 ├── RELEASE.md              # Release process documentation
 └── platformio.ini          # PlatformIO configuration
 ```
+
+## Knowledge Base
+
+- Always check `KNOWLEDGE.md` before starting new tasks
+- If you encounter a new problem and find a solution, document it in `KNOWLEDGE.md`
+- Organize by category: Environment Setup, Development, Deployment, etc.
 
 ## TODO List Workflow
 

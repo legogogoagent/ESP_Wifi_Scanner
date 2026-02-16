@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-02-16] Add KNOWLEDGE.md
+
+### Reason
+Need to record project experience and pitfalls for future reference and to help AI agents avoid repeating mistakes.
+
+### Impact
+Added new file KNOWLEDGE.md, updated AGENTS.md project structure.
+
+### Solution
+Created KNOWLEDGE.md with categories: Environment Setup, Development, Deployment. Each entry includes problem description and solution.
+
+---
+
 ## [2026-02-16] Initial Project Setup
 
 ### Reason
