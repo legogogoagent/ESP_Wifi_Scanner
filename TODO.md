@@ -5,11 +5,14 @@
 - [x] Implement WiFi AP mode with hardcoded SSID
 - [x] Implement web server with landing page
 - [x] Implement WiFi scan functionality
-- [x] Display scan results (SSID, RSSI, encryption, channel, bandwidth)
+- [x] Display scan results (SSID, RSSI, encryption, channel)
 - [x] Sort results by signal strength
-- [x] Add CI/CD workflow
+- [x] Add CI/CD workflow with GitHub Actions
 - [x] Add release process documentation
 - [x] Create AGENTS.md with behavior rules
+- [x] Add KNOWLEDGE.md for recording pitfalls
+- [x] Add CHANGELOG.md for tracking changes
+- [x] Verify firmware flashes correctly with full binary
 
 ## Future Enhancements
 - [ ] Add BLE provisioning for configurable AP credentials

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-02-16] Fix firmware flashing
+
+### Reason
+ESP32 kept rebooting after flashing because only firmware.bin was uploaded, missing bootloader and partitions.
+
+### Impact
+Device was non-functional, USB CDC kept reconnecting.
+
+### Solution
+- Updated CI to upload all three binary files
+- Documented proper flash commands in KNOWLEDGE.md
+
+---
+
 ## [2026-02-16] Add KNOWLEDGE.md
 
 ### Reason
