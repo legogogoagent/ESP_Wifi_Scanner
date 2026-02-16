@@ -1,12 +1,9 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <ESPAsyncWebServer.h>
-#include <AsyncTCP.h>
+#include <WebServer.h>
 
-// Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
+WebServer server(80);
 
-// HTML page content
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
@@ -15,88 +12,27 @@ const char index_html[] PROGMEM = R"rawliteral(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    .button-container {
-      text-align: center;
-      margin: 20px 0;
-    }
-    button {
-      background-color: #4CAF50;
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background-color: white;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #4CAF50;
-      color: white;
-    }
-    tr:hover {
-      background-color: #f5f5f5;
-    }
-    .loading {
-      text-align: center;
-      color: #666;
-      font-style: italic;
-    }
-    .status {
-      text-align: center;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 4px;
-    }
-    .status.scanning {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-    .status.done {
-      background-color: #d4edda;
-      color: #155724;
-    }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
+    h1 { text-align: center; color: #333; }
+    .button-container { text-align: center; margin: 20px 0; }
+    button { background-color: #4CAF50; border: none; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; cursor: pointer; border-radius: 4px; }
+    button:hover { background-color: #45a049; }
+    button:disabled { background-color: #cccccc; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: white; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background-color: #4CAF50; color: white; }
+    tr:hover { background-color: #f5f5f5; }
+    .status { text-align: center; margin: 10px 0; padding: 10px; border-radius: 4px; }
+    .status.scanning { background-color: #fff3cd; color: #856404; }
+    .status.done { background-color: #d4edda; color: #155724; }
   </style>
 </head>
 <body>
   <h1>ESP32 WiFi Scanner</h1>
-  
   <div class="button-container">
     <button id="scanBtn" onclick="startScan()">Scan WiFi Networks</button>
   </div>
-  
   <div id="status" class="status" style="display: none;"></div>
-  
   <table id="resultsTable" style="display: none;">
     <thead>
       <tr>
@@ -104,20 +40,16 @@ const char index_html[] PROGMEM = R"rawliteral(
         <th>Signal (dBm)</th>
         <th>Encryption</th>
         <th>Channel</th>
-        <th>Bandwidth</th>
       </tr>
     </thead>
-    <tbody id="resultsBody">
-    </tbody>
+    <tbody id="resultsBody"></tbody>
   </table>
-
   <script>
     function startScan() {
       var btn = document.getElementById('scanBtn');
       var status = document.getElementById('status');
       var table = document.getElementById('resultsTable');
       var tbody = document.getElementById('resultsBody');
-      
       btn.disabled = true;
       btn.textContent = 'Scanning...';
       status.style.display = 'block';
@@ -125,13 +57,11 @@ const char index_html[] PROGMEM = R"rawliteral(
       status.textContent = 'Scanning for WiFi networks...';
       table.style.display = 'none';
       tbody.innerHTML = '';
-      
       fetch('/scan')
         .then(response => response.json())
         .then(data => {
           status.className = 'status done';
           status.textContent = 'Found ' + data.networks.length + ' networks';
-          
           if (data.networks.length > 0) {
             var html = '';
             data.networks.forEach(function(network) {
@@ -140,13 +70,11 @@ const char index_html[] PROGMEM = R"rawliteral(
               html += '<td>' + network.rssi + '</td>';
               html += '<td>' + network.encryption + '</td>';
               html += '<td>' + network.channel + '</td>';
-              html += '<td>' + network.bandwidth + '</td>';
               html += '</tr>';
             });
             tbody.innerHTML = html;
             table.style.display = 'table';
           }
-          
           btn.disabled = false;
           btn.textContent = 'Scan WiFi Networks';
         })
@@ -161,126 +89,86 @@ const char index_html[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 
-// Function to get encryption type as string
 String getEncryptionType(wifi_auth_mode_t encryption) {
   switch (encryption) {
-    case WIFI_AUTH_OPEN:
-      return "Open";
-    case WIFI_AUTH_WEP:
-      return "WEP";
-    case WIFI_AUTH_WPA_PSK:
-      return "WPA";
-    case WIFI_AUTH_WPA2_PSK:
-      return "WPA2";
-    case WIFI_AUTH_WPA_WPA2_PSK:
-      return "WPA/WPA2";
-    case WIFI_AUTH_WPA2_ENTERPRISE:
-      return "WPA2-Enterprise";
-    case WIFI_AUTH_WPA3_PSK:
-      return "WPA3";
-    case WIFI_AUTH_WPA3_WPA2_PSK:
-      return "WPA3/WPA2";
-    default:
-      return "Unknown";
+    case WIFI_AUTH_OPEN: return "Open";
+    case WIFI_AUTH_WEP: return "WEP";
+    case WIFI_AUTH_WPA_PSK: return "WPA";
+    case WIFI_AUTH_WPA2_PSK: return "WPA2";
+    case WIFI_AUTH_WPA_WPA2_PSK: return "WPA/WPA2";
+    case WIFI_AUTH_WPA2_ENTERPRISE: return "WPA2-Enterprise";
+    case WIFI_AUTH_WPA3_PSK: return "WPA3";
+    case WIFI_AUTH_WPA3_WPA2_PSK: return "WPA3/WPA2";
+    default: return "Unknown";
   }
 }
 
-// Function to get bandwidth string
-String getBandwidth(wifi_bandwidth_t bandwidth) {
-  switch (bandwidth) {
-    case WIFI_BW_HT20:
-      return "20 MHz";
-    case WIFI_BW_HT40:
-      return "40 MHz";
-    default:
-      return "Unknown";
+void handleRoot() {
+  server.send(200, "text/html", index_html);
+}
+
+void handleScan() {
+  Serial.println("Starting WiFi scan...");
+  int n = WiFi.scanNetworks(false, true);
+  
+  struct NetworkInfo {
+    String ssid;
+    int rssi;
+    String encryption;
+    int channel;
+  };
+  
+  NetworkInfo networks[50];
+  int networkCount = 0;
+  
+  for (int i = 0; i < n && i < 50; i++) {
+    networks[i].ssid = WiFi.SSID(i);
+    networks[i].rssi = WiFi.RSSI(i);
+    networks[i].encryption = getEncryptionType(WiFi.encryptionType(i));
+    networks[i].channel = WiFi.channel(i);
+    networkCount++;
   }
+  
+  for (int i = 0; i < networkCount - 1; i++) {
+    for (int j = 0; j < networkCount - i - 1; j++) {
+      if (networks[j].rssi < networks[j + 1].rssi) {
+        NetworkInfo temp = networks[j];
+        networks[j] = networks[j + 1];
+        networks[j + 1] = temp;
+      }
+    }
+  }
+  
+  String json = "{\"networks\":[";
+  for (int i = 0; i < networkCount; i++) {
+    if (i > 0) json += ",";
+    json += "{\"ssid\":\"" + networks[i].ssid + "\",";
+    json += "\"rssi\":" + String(networks[i].rssi) + ",";
+    json += "\"encryption\":\"" + networks[i].encryption + "\",";
+    json += "\"channel\":" + String(networks[i].channel) + "}";
+  }
+  json += "]}";
+  
+  Serial.print("Scan complete. Found ");
+  Serial.print(n);
+  Serial.println(" networks");
+  
+  server.send(200, "application/json", json);
 }
 
 void setup() {
   Serial.begin(115200);
-
-  // Start WiFi in AP mode
   Serial.print("Setting AP (Access Point)…");
   WiFi.softAP("ESP32-Scanner");
-
   IPAddress IP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(IP);
-
-  // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "text/html", index_html);
-  });
-
-  // Route for scan
-  server.on("/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
-    Serial.println("Starting WiFi scan...");
-    
-    // Start scan
-    int n = WiFi.scanNetworks(false, true, true);
-    
-    // Create JSON response
-    String json = "{\"networks\":[";
-    
-    // Store networks in array for sorting
-    struct NetworkInfo {
-      String ssid;
-      int rssi;
-      String encryption;
-      int channel;
-      String bandwidth;
-    };
-    
-    NetworkInfo networks[50]; // Max 50 networks
-    int networkCount = 0;
-    
-    for (int i = 0; i < n && i < 50; i++) {
-      networks[i].ssid = WiFi.SSID(i);
-      networks[i].rssi = WiFi.RSSI(i);
-      networks[i].encryption = getEncryptionType(WiFi.encryptionType(i));
-      networks[i].channel = WiFi.channel(i);
-      
-      // Get bandwidth (not always available)
-      wifi_bandwidth_t bw = WiFi.getChannelWidth();
-      networks[i].bandwidth = getBandwidth(bw);
-      
-      networkCount++;
-    }
-    
-    // Sort by RSSI (signal strength) - strongest first
-    for (int i = 0; i < networkCount - 1; i++) {
-      for (int j = 0; j < networkCount - i - 1; j++) {
-        if (networks[j].rssi < networks[j + 1].rssi) {
-          NetworkInfo temp = networks[j];
-          networks[j] = networks[j + 1];
-          networks[j + 1] = temp;
-        }
-      }
-    }
-    
-    // Build JSON
-    for (int i = 0; i < networkCount; i++) {
-      if (i > 0) json += ",";
-      json += "{\"ssid\":\"" + networks[i].ssid + "\",";
-      json += "\"rssi\":" + String(networks[i].rssi) + ",";
-      json += "\"encryption\":\"" + networks[i].encryption + "\",";
-      json += "\"channel\":" + String(networks[i].channel) + ",";
-      json += "\"bandwidth\":\"" + networks[i].bandwidth + "\"}";
-    }
-    
-    json += "]}";
-    
-    Serial.print("Scan complete. Found ");
-    Serial.print(n);
-    Serial.println(" networks");
-    
-    request->send(200, "application/json", json);
-  });
-
-  // Start server
+  
+  server.on("/", handleRoot);
+  server.on("/scan", handleScan);
   server.begin();
 }
 
 void loop() {
+  server.handleClient();
 }
