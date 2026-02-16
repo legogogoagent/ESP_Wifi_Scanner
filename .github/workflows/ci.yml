@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,26 +25,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node (if package.json exists)
-        if: ${{ hashFiles('package.json') != '' }}
-        uses: actions/setup-node@v6
-        with:
-          node-version: 'lts/*'
-          cache: 'npm'
-
-      - name: Setup Python (if requirements.txt/pyproject.toml exists)
-        if: ${{ hashFiles('requirements.txt', 'pyproject.toml') != '' }}
+      - name: Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Setup Go (if go.mod exists)
-        if: ${{ hashFiles('go.mod') != '' }}
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-          cache: true
+      - name: Run PlatformIO
+        run: |
+          pip install platformio
+          pio run
 
-      - name: Run repo CI script
-        run: bash scripts/ci.sh
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: .pio/build/esp32-c3-devkitm-1/firmware.bin
+          retention-days: 7
